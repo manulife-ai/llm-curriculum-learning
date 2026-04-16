@@ -1,0 +1,5 @@
+runtime:
+  environment: databricks
+  target_accelerator: A100
+  use_mlflow_transformers: true
+  device: cuda

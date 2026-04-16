@@ -1,0 +1,8 @@
+torch
+transformers
+mlflow
+pyyaml
+pandas
+tqdm
+rouge-score
+numpy

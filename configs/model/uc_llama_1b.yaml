@@ -1,0 +1,6 @@
+model:
+  model_name: llama_v3_2_1b
+  base_model_uri: models:/system.ai.llama_v3_2_1b/1
+  load_flavor: transformers
+  tokenizer_name: null
+  task_head: causal_lm

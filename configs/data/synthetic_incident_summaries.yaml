@@ -1,0 +1,6 @@
+data:
+  train_path: data/synthetic_incident_summaries_train.jsonl
+  val_path: data/synthetic_incident_summaries_val.jsonl
+  test_path: data/synthetic_incident_summaries_test.jsonl
+  input_field: input_text
+  target_field: target_text

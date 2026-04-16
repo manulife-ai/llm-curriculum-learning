@@ -1,0 +1,5 @@
+curriculum:
+  schedule_type: linear
+  p_max: 0.4
+  ramp_steps: 24
+  mixer_type: single_pass

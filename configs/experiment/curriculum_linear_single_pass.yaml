@@ -1,0 +1,8 @@
+defaults:
+  - configs/default.yaml
+  - configs/runtime/databricks.yaml
+  - configs/data/synthetic_incident_summaries.yaml
+  - configs/model/uc_llama_1b.yaml
+  - configs/curriculum/linear.yaml
+
+experiment_name: curriculum_linear_single_pass

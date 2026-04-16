@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "curriculum-learning-v1"
+version = "0.1.0"
+description = "Synthetic v1 curriculum learning experiments for decoder-only LMs"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]

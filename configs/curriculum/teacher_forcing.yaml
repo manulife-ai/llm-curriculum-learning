@@ -1,0 +1,5 @@
+curriculum:
+  schedule_type: teacher_forcing
+  p_max: 0.0
+  ramp_steps: 1
+  mixer_type: single_pass

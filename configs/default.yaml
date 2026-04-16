@@ -1,0 +1,34 @@
+seed: 42
+project_name: curriculum-learning-v1
+output_root: experiments/runs
+summary_path: experiments/summaries/leaderboard.csv
+
+training:
+  num_epochs: 20
+  batch_size: 2
+  eval_batch_size: 2
+  learning_rate: 1.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  gradient_accumulation_steps: 2
+  max_grad_norm: 1.0
+  max_seq_length: 256
+  max_new_tokens: 32
+  precision: bf16
+  save_best_only: true
+  log_every_steps: 1
+
+evaluation:
+  generation_mode: greedy
+  max_new_tokens: 32
+  num_beams: 1
+  do_sample: false
+
+data:
+  prompt_template: |
+    Summarize the following support incident in one concise sentence.
+
+    Incident Report:
+    {input_text}
+
+    Summary:
