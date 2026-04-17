@@ -1,4 +1,5 @@
 from torch.utils.data import DataLoader
+from tqdm.auto import tqdm
 
 from src.eval.generation import generate_predictions
 from src.eval.metrics import compute_generation_metrics
@@ -17,7 +18,13 @@ def evaluate_model(model, tokenizer, dataset, collator, config: dict, device: st
     all_prompt_texts = []
 
     model.eval()
-    for batch in loader:
+    progress_bar = tqdm(
+        loader,
+        desc="Evaluating",
+        total=len(loader),
+        dynamic_ncols=True,
+    )
+    for batch_idx, batch in enumerate(progress_bar, start=1):
         tensor_batch = {
             key: value.to(device) if hasattr(value, "to") else value
             for key, value in batch.items()
@@ -38,6 +45,9 @@ def evaluate_model(model, tokenizer, dataset, collator, config: dict, device: st
         all_predictions.extend(predictions)
         all_references.extend(batch["target_texts"])
         all_prompt_texts.extend(batch["prompt_texts"])
+        running_loss = sum(loss_values) / max(len(loss_values), 1)
+        progress_bar.set_postfix(batch=batch_idx, loss=f"{running_loss:.4f}")
+    progress_bar.close()
 
     metrics = compute_generation_metrics(all_predictions, all_references)
     metrics["loss"] = sum(loss_values) / max(len(loss_values), 1)

@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
+import math
 from pathlib import Path
 
 import torch
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
+from tqdm.auto import tqdm
 from transformers import get_linear_schedule_with_warmup
 
 from src.eval.evaluate import evaluate_model
@@ -71,7 +73,14 @@ class CurriculumTrainer:
             epoch_losses = []
             epoch_p_ar = []
             epoch_replacement_rate = []
-            for batch in train_loader:
+            skipped_batches = 0
+            progress_bar = tqdm(
+                train_loader,
+                desc=f"Epoch {epoch + 1}/{self.config['training']['num_epochs']}",
+                total=len(train_loader),
+                dynamic_ncols=True,
+            )
+            for batch_idx, batch in enumerate(progress_bar, start=1):
                 tensor_batch = {
                     key: value.to(self.device) if hasattr(value, "to") else value
                     for key, value in batch.items()
@@ -89,10 +98,26 @@ class CurriculumTrainer:
                     precision=self.config["training"]["precision"],
                     device=self.device,
                 )
-                epoch_losses.append(step_metrics["loss"])
+                if math.isfinite(step_metrics["loss"]):
+                    epoch_losses.append(step_metrics["loss"])
+                else:
+                    skipped_batches += 1
                 epoch_p_ar.append(step_metrics["p_ar"])
                 epoch_replacement_rate.append(step_metrics["replacement_rate"])
+                if (
+                    batch_idx == 1
+                    or batch_idx % self.config["training"].get("log_every_steps", 1) == 0
+                    or batch_idx == len(train_loader)
+                ):
+                    progress_bar.set_postfix(
+                        loss=f"{step_metrics['loss']:.4f}",
+                        p_ar=f"{step_metrics['p_ar']:.3f}",
+                        repl=f"{step_metrics['replacement_rate']:.3f}",
+                        skipped=skipped_batches,
+                        lr=f"{optimizer.param_groups[0]['lr']:.2e}",
+                    )
                 global_step += 1
+            progress_bar.close()
 
             val_metrics, val_outputs = evaluate_model(
                 self.model,
@@ -107,6 +132,7 @@ class CurriculumTrainer:
                 "train_loss": sum(epoch_losses) / max(len(epoch_losses), 1),
                 "avg_p_ar": sum(epoch_p_ar) / max(len(epoch_p_ar), 1),
                 "avg_replacement_rate": sum(epoch_replacement_rate) / max(len(epoch_replacement_rate), 1),
+                "skipped_batches": skipped_batches,
                 "val_loss": val_metrics["loss"],
                 "val_rouge1": val_metrics["rouge1"],
                 "val_rougeL": val_metrics["rougeL"],
