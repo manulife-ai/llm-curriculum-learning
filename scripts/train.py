@@ -15,7 +15,7 @@ from src.data.datasets import build_datasets
 from src.modeling.wrapper import load_model
 from src.train.trainer import CurriculumTrainer
 from src.utils.io import deep_merge, load_experiment_config, load_yaml
-from src.utils.logging import configure_logging
+from src.utils.logging import configure_logging, configure_runtime_noise
 from src.utils.seed import set_seed
 
 
@@ -24,6 +24,7 @@ def run_training(experiment_config: str, runtime_config: str | None = None):
     if runtime_config:
         config = deep_merge(config, load_yaml(runtime_config))
 
+    configure_runtime_noise(config)
     logger = configure_logging()
     set_seed(config["seed"])
     datasets = build_datasets(config)

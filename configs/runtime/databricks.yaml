@@ -3,3 +3,4 @@ runtime:
   target_accelerator: A100
   use_mlflow_transformers: true
   device: cuda
+  hf_datasets_cache: /dbfs/tmp/hf_datasets_cache
