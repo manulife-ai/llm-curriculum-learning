@@ -40,10 +40,17 @@ class MetricBasedSchedule:
         return min(self.p_max, metrics.get("progress", 0.0) * self.p_max)
 
 
+@dataclass
+class AutoregressiveSchedule:
+    def get_p_ar(self, step: int, metrics: dict | None = None) -> float:
+        return 1.0
+
 def build_schedule(config: dict):
     schedule_type = config["curriculum"]["schedule_type"]
     if schedule_type == "teacher_forcing":
         return TeacherForcingSchedule()
+    if schedule_type == "autoregressive":
+        return AutoregressiveSchedule()
     if schedule_type == "linear":
         return LinearSchedule(config["curriculum"]["p_max"], config["curriculum"]["ramp_steps"])
     if schedule_type == "exponential":
