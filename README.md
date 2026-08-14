@@ -1,7 +1,7 @@
 
-# Sequence-level Curriculum Learning for Autoregressive LLMs
+# Token-level Curriculum Learning for Autoregressive LLMs
 
-This project investigates sequence-level curriculum learning strategies to enhance the generation quality of autoregressive large language models (LLMs) by mitigating exposure bias during training.
+This project explores token-level curriculum learning for the supervised fine-tuning of autoregressive large language models (LLMs). Training gradually mixes the model's own predictions into teacher-forced inputs at the token level, with the aim of narrowing the train/inference distribution gap and improving generation quality.
 
 ## Project Tree
 
