@@ -1,0 +1,13 @@
+data:
+  train_path: data/xsum_train.jsonl
+  val_path: data/xsum_val.jsonl
+  test_path: data/xsum_test.jsonl
+  input_field: input_text
+  target_field: target_text
+  prompt_template: |
+    Summarize the following news article in a single concise sentence.
+
+    Article:
+    {input_text}
+
+    Summary:
