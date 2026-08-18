@@ -29,6 +29,7 @@ evaluation:
   max_new_tokens: 32
   num_beams: 1
   do_sample: false
+  best_metric: rougeL
 
 data:
   prompt_template: |

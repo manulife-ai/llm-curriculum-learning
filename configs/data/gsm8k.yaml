@@ -14,3 +14,4 @@ data:
 
 evaluation:
   task: gsm8k
+  best_metric: gsm8k_pass_at_1

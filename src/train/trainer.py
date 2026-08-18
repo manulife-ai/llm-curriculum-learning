@@ -82,7 +82,8 @@ class CurriculumTrainer:
         self.model.to(self.device)
         optimizer.zero_grad(set_to_none=True)
         global_step = 0
-        best_val_rouge = -1.0
+        best_metric_name = self.config.get("evaluation", {}).get("best_metric", "rougeL")
+        best_metric_value = -math.inf
         best_checkpoint = None
 
         for epoch in range(self.config["training"]["num_epochs"]):
@@ -154,6 +155,9 @@ class CurriculumTrainer:
                 "val_rougeL": val_metrics["rougeL"],
                 "val_exact_match": val_metrics["exact_match"],
             }
+            for extra_key in ("gsm8k_pass_at_1", "gsm8k_extract_rate"):
+                if extra_key in val_metrics:
+                    history_row[f"val_{extra_key}"] = val_metrics[extra_key]
             self.training_history.append(history_row)
             self.logger.info("Epoch %s metrics: %s", epoch + 1, history_row)
             tracker.log_metrics(
@@ -161,8 +165,13 @@ class CurriculumTrainer:
                 step=epoch + 1,
             )
 
-            if val_metrics["rougeL"] > best_val_rouge:
-                best_val_rouge = val_metrics["rougeL"]
+            current_metric = val_metrics.get(best_metric_name)
+            if current_metric is None:
+                raise KeyError(
+                    f"Configured evaluation.best_metric '{best_metric_name}' not found in val metrics: {sorted(val_metrics)}"
+                )
+            if current_metric > best_metric_value:
+                best_metric_value = current_metric
                 best_checkpoint = save_checkpoint(
                     self.model,
                     self.tokenizer,
@@ -186,12 +195,16 @@ class CurriculumTrainer:
             "experiment_name": self.config["experiment_name"],
             "run_dir": str(run_dir),
             "best_checkpoint": str(best_checkpoint) if best_checkpoint else "",
-            "best_val_rougeL": best_val_rouge,
+            "best_metric_name": best_metric_name,
+            "best_metric_value": best_metric_value if math.isfinite(best_metric_value) else None,
             "test_loss": test_metrics["loss"],
             "test_rouge1": test_metrics["rouge1"],
             "test_rougeL": test_metrics["rougeL"],
             "test_exact_match": test_metrics["exact_match"],
         }
+        for extra_key in ("gsm8k_pass_at_1", "gsm8k_extract_rate"):
+            if extra_key in test_metrics:
+                run_summary[f"test_{extra_key}"] = test_metrics[extra_key]
         save_json(str(run_dir / "run_summary.json"), run_summary)
         append_row_to_csv(self.config["summary_path"], run_summary)
         tracker.log_metrics(
