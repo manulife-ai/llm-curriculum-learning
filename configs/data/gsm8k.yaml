@@ -1,0 +1,13 @@
+data:
+  train_path: data/gsm8k_train.jsonl
+  val_path: data/gsm8k_val.jsonl
+  test_path: data/gsm8k_test.jsonl
+  input_field: input_text
+  target_field: target_text
+  prompt_template: |
+    Solve the following math problem step by step. End your solution with the final numeric answer on a line beginning with "####".
+
+    Problem:
+    {input_text}
+
+    Solution:
