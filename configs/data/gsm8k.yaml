@@ -11,3 +11,6 @@ data:
     {input_text}
 
     Solution:
+
+evaluation:
+  task: gsm8k

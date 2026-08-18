@@ -49,7 +49,11 @@ def evaluate_model(model, tokenizer, dataset, collator, config: dict, device: st
         progress_bar.set_postfix(batch=batch_idx, loss=f"{running_loss:.4f}")
     progress_bar.close()
 
-    metrics = compute_generation_metrics(all_predictions, all_references)
+    metrics = compute_generation_metrics(
+        all_predictions,
+        all_references,
+        task=config.get("evaluation", {}).get("task"),
+    )
     metrics["loss"] = sum(loss_values) / max(len(loss_values), 1)
     return metrics, {
         "predictions": all_predictions,
