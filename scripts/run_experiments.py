@@ -21,6 +21,8 @@ def main():
                 str(PROJECT_ROOT / "scripts" / "train.py"),
                 "--config",
                 str(config_path),
+                "--seed",
+                str(seed),
             ]
             env = None
             print(f"Running {config_path.name} with seed {seed}")

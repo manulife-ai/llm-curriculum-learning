@@ -14,6 +14,7 @@ from src.eval.evaluate import evaluate_model
 from src.train.loop import run_train_step
 from src.utils.checkpoint import save_checkpoint
 from src.utils.io import append_row_to_csv, resolve_path, save_json, save_yaml
+from src.utils.seed import build_generator
 
 
 class CurriculumTrainer:
@@ -44,6 +45,7 @@ class CurriculumTrainer:
             batch_size=self.config["training"]["batch_size"],
             shuffle=True,
             collate_fn=self.collator,
+            generator=build_generator(self.config["seed"]),
         )
         optimizer = AdamW(
             self.model.parameters(),

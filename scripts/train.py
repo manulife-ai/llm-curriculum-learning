@@ -19,10 +19,12 @@ from src.utils.logging import configure_logging, configure_runtime_noise
 from src.utils.seed import set_seed
 
 
-def run_training(experiment_config: str, runtime_config: str | None = None):
+def run_training(experiment_config: str, runtime_config: str | None = None, seed: int | None = None):
     config = load_experiment_config(experiment_config)
     if runtime_config:
         config = deep_merge(config, load_yaml(runtime_config))
+    if seed is not None:
+        config["seed"] = seed
 
     configure_runtime_noise(config)
     logger = configure_logging()
@@ -58,8 +60,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True, help="Path to experiment yaml")
     parser.add_argument("--runtime-config", default=None, help="Optional runtime yaml override")
+    parser.add_argument("--seed", type=int, default=None, help="Override seed from config")
     args = parser.parse_args()
-    result = run_training(args.config, args.runtime_config)
+    result = run_training(args.config, args.runtime_config, seed=args.seed)
     print(result)
 
 
