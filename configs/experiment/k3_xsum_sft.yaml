@@ -1,0 +1,18 @@
+defaults:
+  - configs/default.yaml
+  - configs/runtime/databricks.yaml
+  - configs/data/xsum.yaml
+  - configs/model/uc_llama_1b.yaml
+  - configs/curriculum/teacher_forcing.yaml
+
+experiment_name: k3_xsum_sft
+
+training:
+  num_epochs: 3
+  batch_size: 4
+  eval_batch_size: 4
+  max_seq_length: 512
+  max_new_tokens: 64
+
+evaluation:
+  max_new_tokens: 64

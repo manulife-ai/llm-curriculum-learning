@@ -1,0 +1,18 @@
+defaults:
+  - configs/default.yaml
+  - configs/runtime/databricks.yaml
+  - configs/data/gsm8k.yaml
+  - configs/model/uc_llama_1b.yaml
+  - configs/curriculum/kill_phase_linear_low.yaml
+
+experiment_name: k5_gsm8k_ss_low
+
+training:
+  num_epochs: 3
+  batch_size: 2
+  eval_batch_size: 2
+  max_seq_length: 768
+  max_new_tokens: 256
+
+evaluation:
+  max_new_tokens: 256
