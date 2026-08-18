@@ -15,7 +15,7 @@ from src.train.loop import run_train_step
 from src.utils.checkpoint import save_checkpoint
 from src.utils.io import append_row_to_csv, resolve_path, save_json, save_yaml
 from src.utils.seed import build_generator
-from src.utils.tracking import MLflowTracker, get_git_revision
+from src.utils.tracking import MLflowTracker, build_run_metadata, get_git_revision
 
 
 class CurriculumTrainer:
@@ -40,6 +40,8 @@ class CurriculumTrainer:
     def train(self, train_dataset, val_dataset, test_dataset):
         run_dir = self._build_run_dir()
         save_yaml(str(run_dir / "resolved_config.yaml"), self.config)
+        run_metadata = build_run_metadata(self.config, cwd=resolve_path("."))
+        save_json(str(run_dir / "run_metadata.json"), run_metadata)
 
         tracker = MLflowTracker.from_config(self.config, logger=self.logger)
         git_rev = get_git_revision(cwd=resolve_path("."))
@@ -50,6 +52,7 @@ class CurriculumTrainer:
         })
         tracker.log_params(self.config)
         tracker.log_artifact(run_dir / "resolved_config.yaml")
+        tracker.log_artifact(run_dir / "run_metadata.json")
 
         train_loader = DataLoader(
             train_dataset,

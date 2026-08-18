@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import logging
 import os
+import platform
+import socket
 import subprocess
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -29,6 +33,27 @@ def get_git_revision(cwd: str | os.PathLike | None = None) -> dict[str, str]:
     except (subprocess.CalledProcessError, FileNotFoundError):
         dirty = ""
     return {"git_sha": sha, "git_dirty": dirty}
+
+
+def build_run_metadata(config: dict[str, Any], cwd: str | os.PathLike | None = None) -> dict[str, Any]:
+    """Assemble a JSON-serializable snapshot of run provenance for on-disk persistence."""
+    torch_version = ""
+    try:
+        import torch  # deferred import so this module stays lightweight in bare envs
+
+        torch_version = torch.__version__
+    except ImportError:
+        pass
+    return {
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "experiment_name": config.get("experiment_name", ""),
+        "seed": config.get("seed"),
+        "hostname": socket.gethostname(),
+        "python_version": sys.version.split()[0],
+        "platform": platform.platform(),
+        "torch_version": torch_version,
+        **get_git_revision(cwd=cwd),
+    }
 
 
 def _flatten_params(prefix: str, obj: Any, out: dict[str, Any]) -> None:

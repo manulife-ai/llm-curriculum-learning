@@ -1,6 +1,11 @@
 import logging
 
-from src.utils.tracking import MLflowTracker, _flatten_params, get_git_revision
+from src.utils.tracking import (
+    MLflowTracker,
+    _flatten_params,
+    build_run_metadata,
+    get_git_revision,
+)
 
 
 def test_get_git_revision_returns_sha_in_repo():
@@ -39,3 +44,28 @@ def test_tracker_context_manager_no_op_when_disabled():
     with MLflowTracker.from_config({}, logger=logging.getLogger("test")) as tracker:
         tracker.log_metrics({"loss": 1.0})
     assert tracker._active_run is None
+
+
+def test_build_run_metadata_has_expected_keys():
+    meta = build_run_metadata({"experiment_name": "unit_test", "seed": 42})
+    expected = {
+        "timestamp_utc",
+        "experiment_name",
+        "seed",
+        "hostname",
+        "python_version",
+        "platform",
+        "torch_version",
+        "git_sha",
+        "git_dirty",
+    }
+    assert set(meta.keys()) == expected
+    assert meta["experiment_name"] == "unit_test"
+    assert meta["seed"] == 42
+    assert meta["python_version"].count(".") >= 1
+
+
+def test_build_run_metadata_outside_repo(tmp_path):
+    meta = build_run_metadata({"experiment_name": "x", "seed": 0}, cwd=tmp_path)
+    assert meta["git_sha"] == ""
+    assert meta["git_dirty"] == ""
