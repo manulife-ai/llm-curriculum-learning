@@ -3,6 +3,12 @@ project_name: curriculum-learning-v1
 output_root: experiments/runs
 summary_path: experiments/summaries/leaderboard.csv
 
+tracking:
+  enabled: false
+  experiment_name: null
+  tracking_uri: null
+  run_name: null
+
 training:
   num_epochs: 20
   batch_size: 2

@@ -15,6 +15,7 @@ from src.train.loop import run_train_step
 from src.utils.checkpoint import save_checkpoint
 from src.utils.io import append_row_to_csv, resolve_path, save_json, save_yaml
 from src.utils.seed import build_generator
+from src.utils.tracking import MLflowTracker, get_git_revision
 
 
 class CurriculumTrainer:
@@ -39,6 +40,16 @@ class CurriculumTrainer:
     def train(self, train_dataset, val_dataset, test_dataset):
         run_dir = self._build_run_dir()
         save_yaml(str(run_dir / "resolved_config.yaml"), self.config)
+
+        tracker = MLflowTracker.from_config(self.config, logger=self.logger)
+        git_rev = get_git_revision(cwd=resolve_path("."))
+        tracker.start(tags={
+            "experiment_name": self.config.get("experiment_name", ""),
+            "seed": str(self.config.get("seed", "")),
+            **git_rev,
+        })
+        tracker.log_params(self.config)
+        tracker.log_artifact(run_dir / "resolved_config.yaml")
 
         train_loader = DataLoader(
             train_dataset,
@@ -142,6 +153,10 @@ class CurriculumTrainer:
             }
             self.training_history.append(history_row)
             self.logger.info("Epoch %s metrics: %s", epoch + 1, history_row)
+            tracker.log_metrics(
+                {k: v for k, v in history_row.items() if k != "epoch"},
+                step=epoch + 1,
+            )
 
             if val_metrics["rougeL"] > best_val_rouge:
                 best_val_rouge = val_metrics["rougeL"]
@@ -176,4 +191,10 @@ class CurriculumTrainer:
         }
         save_json(str(run_dir / "run_summary.json"), run_summary)
         append_row_to_csv(self.config["summary_path"], run_summary)
+        tracker.log_metrics(
+            {k: v for k, v in run_summary.items() if isinstance(v, (int, float))}
+        )
+        tracker.log_artifact(run_dir / "training_history.json")
+        tracker.log_artifact(run_dir / "run_summary.json")
+        tracker.end()
         return run_summary
