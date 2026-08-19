@@ -1,5 +1,5 @@
 from torch.utils.data import DataLoader
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 from src.eval.generation import generate_predictions
 from src.eval.metrics import compute_generation_metrics

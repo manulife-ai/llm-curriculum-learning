@@ -7,7 +7,7 @@ from pathlib import Path
 import torch
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
-from tqdm.auto import tqdm
+from tqdm import tqdm
 from transformers import get_linear_schedule_with_warmup
 
 from src.eval.evaluate import evaluate_model
