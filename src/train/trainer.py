@@ -178,6 +178,7 @@ class CurriculumTrainer:
                     str(run_dir),
                     "best_checkpoint",
                     val_metrics,
+                    max_shard_size=self.config["training"].get("checkpoint_max_shard_size"),
                 )
                 save_json(str(run_dir / "best_val_predictions.json"), val_outputs)
 

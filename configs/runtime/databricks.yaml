@@ -5,6 +5,11 @@ runtime:
   device: cuda
   hf_datasets_cache: /dbfs/tmp/hf_datasets_cache
 
+output_root: /dbfs/tmp/curriculum-learning/runs
+
+training:
+  checkpoint_max_shard_size: 1900MB
+
 tracking:
   enabled: true
   experiment_name: /Shared/curriculum-learning-v1
